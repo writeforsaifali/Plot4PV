@@ -36,10 +36,27 @@ from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import streamlit as st
+import importlib
+import subprocess
+import sys
+
+def _ensure_module(mod_name: str, pip_name: Optional[str] = None):
+    """Import a module, installing it via pip on ImportError.
+
+    Returns the imported module object.
+    """
+    pip_name = pip_name or mod_name
+    try:
+        return importlib.import_module(mod_name)
+    except Exception:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", pip_name])
+        return importlib.import_module(mod_name)
+
+# Ensure commonly missing interactive/plotting packages are available at runtime.
+px = _ensure_module("plotly.express", "plotly")
+go = _ensure_module("plotly.graph_objects", "plotly")
+make_subplots = _ensure_module("plotly.subplots", "plotly").make_subplots
+st = _ensure_module("streamlit")
 
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as patheffects  # For glow effects on markers
